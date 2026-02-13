@@ -1,0 +1,14 @@
+---
+title: "PS270 Final Project"
+author: "Neela Hammer"
+description: "My final project"
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+
+## Project thoughts
+
+I am interested in exploring data related to how media consumption shapes voting habits, what countries are more prone to conflict, or something related to political nonprofits. 
