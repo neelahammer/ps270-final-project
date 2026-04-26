@@ -1,5 +1,5 @@
 ---
-title: "PS270 Final Project"
+title: "Freedom in World Regions Over Time"
 author: "Neela Hammer"
 description: "My final project"
 output:
@@ -7,25 +7,35 @@ output:
     self_contained: false
 ---
 
+## Introduction
 
+### Research question
+My research question for this project is: Does world region have an effect on the magnitude of change in freedom from 2013-2025?
 
-## Project thoughts (milestone 1)
+### Hypothesizing:
+My hypothesis is that **Eurasia** and the **Middle East** have experienced a larger decline in freedom than other regions due to war and occupation. Specifically, I think the wars in Ukraine and in Gaza could be causing a faster freedom decline. War can cause democratic decline as rulers are more autocratic, harsher policies are put in place to protect the country and people are subject to increased violence. 
 
-I am interested in exploring data related to how media consumption shapes voting habits, what countries are more prone to conflict, or something related to political nonprofits. 
+### Importance
+This topic is important because while all world regions have seen a freedom decline in the past 13 years, the effects can disproportionately affect specific regions and groups of people. It's important to understand how different areas of the world are changing and how ruling styles, conflicts or citizens' rights impact overall freedom. Examining this pattern will allow us to understand where democracy is weakening, where people are struggling to live freely and where intervention is most needed. With this information, international organizations, policymakers or other people in power could know where they most need to route their resources and energy to protect peoples' rights and freedoms. 
 
-## Research question (milestone 2)
+## Data
 
-My research question for this project is: Does change or decline in freedom scores between 2013 and 2025 differ by world region? My hypothesis is that Eurasia and the Middle East have experienced a larger decline in freedom than other regions due to war and occupation. My independent variable is world region, which is measured categorically by dividing countries into groups based on location. My dependent variable is freedom score as determined by Freedom House's Freedom in the World dataset. Each country is assigned to free, partially free, or not free status and is ranked from 0-4 on a set of freedom-related criteria. I will examine the changes in these rankings over time. If the data shows that there is a pattern of countries in Eurasia and/or the Middle East declining the most, my hypothesis will be correct. If another region has had larger declines, my hypothesis will be incorrect. 
+My data comes from the Freedom House's Freedom in the World dataset, which collects data on various aspects of freedom in different countries over different years. The data runs from 2013 to 2025, so this is the timeline that my analysis will focus on. The study used a **difference-in-differences** design because the data is collected from multiple countries over multiple years. This allows me to see the difference both among regions and across time. 
 
-```{r}
+### Variables
+My independent variable is **world region**, which is measured categorically by dividing countries into groups based on location. My dependent variable is **total freedom score** as determined by Freedom House's Freedom in the World dataset. Each country is assigned to free, partially free, or not free status and is ranked from 0-4 on a set of freedom-related criteria. I will examine the changes in these rankings, focusing on the total freedom score (sum of scores on all criteria), over time. 
+
+### Cleaning the data
+The code I wrote to clean the data is included in the code section at the bottom of the report. Mainly, I uploaded the dataset, renamed columns to make them clear and removed the first row which did not include any data. Throughout the process I also turned character strings into numeric values to be able to analyze means and other numerical statistics. 
+
+```{r load data, include = FALSE}
 library(tidyverse)
 FIWdata <-read_csv("data/FIWdatacsv.csv")
 head(FIWdata)
 ```
 
-## Data cleaning
 
-```{r}
+```{r clean columns, include = FALSE}
 FIWdata <- FIWdata |>
   rename(
     country_territory = `Freedom in the World 2013-2025 Raw Data`,
@@ -47,13 +57,22 @@ FIWdata <- FIWdata |>
     )
 ```
 
-```{r}
+```{r remove row, include = FALSE}
 FIWdata <- FIWdata[-1, ]
 ```
 
-## Data visualization (milestone 3)
+### Criteria for hypothesis
+To test my hypothesis, I will run a linear regression for the interaction of region and year on total freedom score. I would expect to see Eurasia or the Middle East having the steepest negative slope. If the slope is positive or another region has a steeper decline, I will know the hypothesis is incorrect.
 
-```{r}
+I will find the p-value for this coeffecient to statistically determine which hypothesis is correct:
+**Null:** Region of the world has no effect on change in freedom score over time.
+**Alternative:** Region of the world DOES have an effect on change in freedom score over time. The ATE does not equal 0.
+If the p-value is less than or equal to 0.05 I will reject the null. If it is greater, I will fail to reject the null hypothesis of no difference. 
+
+### Visualization of freedom over time by region
+This plot shows the relationship between region of the world and freedom score over time. Each line represents the mean freedom score of one world region at different points in the last 12 years. 
+
+```{r region time plot, echo = FALSE}
 region_time_plot <- FIWdata |>
   mutate(edition = as.numeric(edition), 
          total = as.numeric(total)) |>
@@ -71,9 +90,8 @@ region_time_plot <- FIWdata |>
 region_time_plot
 ```
 
-This scatterplot shows the relationship between region of the world and freedom score over time. Each line represents the mean freedom score of one world region at different points in the last 12 years. 
 
-## Visualization and Analysis (milestone 4)
+## Results
 
 ### Liner model for global freedom over time:
 
@@ -89,6 +107,12 @@ FIW2 <- FIWdata |>
 ```{r}
 global_model <- lm(mean_total ~ edition, data = FIW2)
 global_model
+
+global_tibble <- tibble(
+  intercept = 886.0584,
+  edition = -0.4131
+)
+knitr::kable(global_tibble)
 ```
 
 The intercept is not substantive here as it predicts the mean freedom score at year 0, which is not included in our dataset or important for the research question, which focuses on 2013-2025. 
@@ -99,7 +123,12 @@ The edition coefficient means that the average freedom score in the world as a w
 
 ```{r}
 regional_model <- lm(mean_total ~ region * edition, data = FIW2)
-regional_model
+
+regional_tibble <- tibble(
+  region = c("Eurasia", "Africa", "Middle East", "Americas", "Europe", "Asia"),
+  slope = c(-0.66443, -0.48518, -0.41831, -0.39027, -0.31957, -0.20086)
+)
+knitr::kable(regional_tibble)
 ```
 
 This model shows the effect of both year and region on mean total freedom score. The region coefficients alone represent the predicted change in freedom since year 0, which is not relevant to this situation. 
