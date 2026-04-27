@@ -67,8 +67,11 @@ FIWdata <- FIWdata[-1, ]
 To test my hypothesis, I will run a linear regression for the interaction of region and year on total freedom score. I would expect to see that each region has a different slope/change over time. I would expect to see Eurasia or the Middle East having the steepest negative slope. 
 
 I will find the p-value for this coeffecient to statistically determine which hypothesis is correct:
+
 **Null:** Region of the world has no effect on change in freedom score over time.
+
 **Alternative:** Region of the world DOES have an effect on change in freedom score over time. In other words, not all world regions are declining in freedom at the same rate. 
+
 If the p-value is less than or equal to 0.05 I will reject the null. If it is greater, I will fail to reject the null hypothesis of no difference. 
 
 ### Visualization of freedom over time by region
@@ -108,7 +111,6 @@ FIW2 <- FIWdata |>
 
 ```{r global regression, echo = FALSE}
 global_model <- lm(mean_total ~ edition, data = FIW2)
-global_model
 
 global_tibble <- tibble(
   intercept = 886.0584,
@@ -154,7 +156,7 @@ Middle East: -0.418 points per year
 This means that Eurasia has the fastest decline in freedom over 2013-2025, and Asia has the slowest. According to this model, my hypothesis was partly correct. I predicted freedom in Eurasia and the Middle East had declined the most. In reality, Eurasia has declined the most, then Africa, then the Middle East. 
 
 ### Visualization of the linear models
-This graph shows the magnitude of the slope of freedom decline for each region, ordered from least to greatest. They are ordered from smallest negative slope (least decline) to steepest negative slope (most decline). 
+This graph shows the magnitude of the slope of freedom decline for each region. They are ordered from smallest negative slope (least decline) to steepest negative slope (most decline). 
 
 ```{r lm visualization, echo = FALSE}
 regional_tibble |>
@@ -171,7 +173,7 @@ regional_tibble |>
 ```
 
 ### Conclusion based on p-values
-This table shows the p-values of the regression lines for each world region. I will use the p-values to determine whether I should reject the null hypothesis that all regions are declining at the same rate, at alpha = 0.05 level. 
+This table shows the p-values of the regression lines for each world region. I will use the p-values to determine whether I should reject the null hypothesis that all regions are declining at the same rate, at **alpha = 0.05** level. 
 
 ```{r p-values, echo = FALSE}
 library(broom)
@@ -181,7 +183,7 @@ tidy(regional_model) |>
   knitr::kable(digits = 3)
 ```
 
-**Interpretation:** This data shows mixed results for my hypothesis. Some values have statistically significant differences with p-values less than **alpha (0.05)**, while others don't. 
+**Interpretation:** This data shows mixed results for my hypothesis. Some values have statistically significant differences with p-values less than alpha (0.05), while others don't. 
 
 The regions that have a statistically significant difference here are **Africa** (reference), **Asia**, **Eurasia** and **Europe**. The regions that do not have a statistically significant difference are **the Americas** and **the Middle East**.
 
