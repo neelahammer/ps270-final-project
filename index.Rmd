@@ -1,7 +1,7 @@
 ---
 title: "Freedom in World Regions Over Time"
 author: "Neela Hammer"
-description: "My final project"
+description: "Final project analyzing the difference in democratic decline between world regions"
 output:
   distill::distill_article:
     self_contained: false
@@ -12,8 +12,10 @@ output:
 ### Research question
 My research question for this project is: Does world region have an effect on the magnitude of change in freedom from 2013-2025?
 
-### Hypothesizing:
-My hypothesis is that **Eurasia** and the **Middle East** have experienced a larger decline in freedom than other regions due to war and occupation. Specifically, I think the wars in Ukraine and in Gaza could be causing a faster freedom decline. War can cause democratic decline as rulers are more autocratic, harsher policies are put in place to protect the country and people are subject to increased violence. 
+### Hypothesizing
+My hypothesis is that not all world regions are declining in freedom at the same rate. 
+
+Specifically, I hypothesize that **Eurasia** and the **Middle East** have experienced a larger decline in freedom than other regions due to war and occupation. I think the wars in Ukraine and in Gaza could be causing a faster freedom decline. War can cause democratic decline as rulers are more autocratic, harsher policies are put in place to protect the country and people are subject to increased violence. 
 
 ### Importance
 This topic is important because while all world regions have seen a freedom decline in the past 13 years, the effects can disproportionately affect specific regions and groups of people. It's important to understand how different areas of the world are changing and how ruling styles, conflicts or citizens' rights impact overall freedom. Examining this pattern will allow us to understand where democracy is weakening, where people are struggling to live freely and where intervention is most needed. With this information, international organizations, policymakers or other people in power could know where they most need to route their resources and energy to protect peoples' rights and freedoms. 
@@ -62,11 +64,11 @@ FIWdata <- FIWdata[-1, ]
 ```
 
 ### Criteria for hypothesis
-To test my hypothesis, I will run a linear regression for the interaction of region and year on total freedom score. I would expect to see Eurasia or the Middle East having the steepest negative slope. If the slope is positive or another region has a steeper decline, I will know the hypothesis is incorrect.
+To test my hypothesis, I will run a linear regression for the interaction of region and year on total freedom score. I would expect to see that each region has a different slope/change over time. I would expect to see Eurasia or the Middle East having the steepest negative slope. 
 
 I will find the p-value for this coeffecient to statistically determine which hypothesis is correct:
 **Null:** Region of the world has no effect on change in freedom score over time.
-**Alternative:** Region of the world DOES have an effect on change in freedom score over time. The ATE does not equal 0.
+**Alternative:** Region of the world DOES have an effect on change in freedom score over time. In other words, not all world regions are declining in freedom at the same rate. 
 If the p-value is less than or equal to 0.05 I will reject the null. If it is greater, I will fail to reject the null hypothesis of no difference. 
 
 ### Visualization of freedom over time by region
@@ -93,9 +95,9 @@ region_time_plot
 
 ## Results
 
-### Liner model for global freedom over time:
+### Liner model for global freedom over time
 
-```{r}
+```{r manipulating variables, include = FALSE}
 FIW2 <- FIWdata |>
   mutate(edition = as.numeric(edition), 
          total = as.numeric(total)) |>
@@ -104,7 +106,7 @@ FIW2 <- FIWdata |>
 ```
 
 
-```{r}
+```{r global regression, echo = FALSE}
 global_model <- lm(mean_total ~ edition, data = FIW2)
 global_model
 
@@ -117,48 +119,44 @@ knitr::kable(global_tibble)
 
 The intercept is not substantive here as it predicts the mean freedom score at year 0, which is not included in our dataset or important for the research question, which focuses on 2013-2025. 
 
-The edition coefficient means that the average freedom score in the world as a whole over time decreases at an average of 0.41 points per year. This highlights that freedom in the world is overall declining. 
+The edition coefficient means that the average freedom score in the world as a whole over time decreases at an average of 0.41 freedom points per year. This highlights that freedom in the world is overall declining. 
 
-### Now, models isolating coefficients for each region:
+### Now, models isolating coefficients for each region
 
-```{r}
+```{r regional regressions, echo = FALSE}
 regional_model <- lm(mean_total ~ region * edition, data = FIW2)
 
 regional_tibble <- tibble(
   region = c("Eurasia", "Africa", "Middle East", "Americas", "Europe", "Asia"),
   slope = c(-0.66443, -0.48518, -0.41831, -0.39027, -0.31957, -0.20086)
 )
-knitr::kable(regional_tibble)
+knitr::kable(regional_tibble, digits = 3)
 ```
 
-This model shows the effect of both year and region on mean total freedom score. The region coefficients alone represent the predicted change in freedom since year 0, which is not relevant to this situation. 
+This model shows the effect of both year and region on mean total freedom score. The original result before creating a tibble also included the intercept which is not important here and the region coefficients, which alone represent the predicted change in freedom since year 0, which are also not relevant to this situation. 
 
-However, each region:edition coefficient represents the slope/change of freedom in a single world region from 2013-2025. The edition coefficient represents Africa, which this model predicts has declined 0.49 points on average per year. Each other coefficient represents the difference in slope from Africa, the base group.
+In this table I included the regression's region:edition coefficients, which each represent the slope/change of freedom in a single world region from 2013-2025. I added each region's coefficient to the base coefficient for Africa to isolate these values, and then put them into this clear table. 
 
 According to this model, every region has a negative change in freedom during this time period. Here are the values of each slope:
 
-Africa: -0.48518 points per year
+Africa: -0.485 points per year
 
-Americas: -0.39027 points per year
+Americas: -0.390 points per year
 
-Asia: -0.20086 points per year
+Asia: -0.201 points per year
 
-Eurasia: -0.66443 points per year
+Eurasia: -0.664 points per year
 
-Europe: -0.31957 points per year
+Europe: -0.320 points per year
 
-Middle East: -0.41831 points per year
+Middle East: -0.418 points per year
 
 This means that Eurasia has the fastest decline in freedom over 2013-2025, and Asia has the slowest. According to this model, my hypothesis was partly correct. I predicted freedom in Eurasia and the Middle East had declined the most. In reality, Eurasia has declined the most, then Africa, then the Middle East. 
 
 ### Visualization of the linear models
+This graph shows the magnitude of the slope of freedom decline for each region, ordered from least to greatest. They are ordered from smallest negative slope (least decline) to steepest negative slope (most decline). 
 
-```{r}
-regional_tibble <- tibble(
-  region = c("Eurasia", "Africa", "Middle East", "Americas", "Europe", "Asia"),
-  slope = c(-0.66443, -0.48518, -0.41831, -0.39027, -0.31957, -0.20086)
-)
-
+```{r lm visualization, echo = FALSE}
 regional_tibble |>
   mutate(slope_positive = abs(slope)) |>
   ggplot(aes(x = reorder(region, slope_positive), y = slope_positive)) +
@@ -172,6 +170,37 @@ regional_tibble |>
   geom_hline(yintercept = 0.4131, color = "blue")
 ```
 
+### Conclusion based on p-values
+This table shows the p-values of the regression lines for each world region. I will use the p-values to determine whether I should reject the null hypothesis that all regions are declining at the same rate, at alpha = 0.05 level. 
 
+```{r p-values, echo = FALSE}
+library(broom)
+tidy(regional_model) |>
+  select(term, p.value) |>
+  filter(term %in% c("edition", "regionAmericas:edition", "regionAsia:edition", "regionEurasia:edition", "regionEurope:edition", "regionMiddle East:edition")) |>
+  knitr::kable(digits = 3)
+```
 
+**Interpretation:** This data shows mixed results for my hypothesis. Some values have statistically significant differences with p-values less than **alpha (0.05)**, while others don't. 
 
+The regions that have a statistically significant difference here are **Africa** (reference), **Asia**, **Eurasia** and **Europe**. The regions that do not have a statistically significant difference are **the Americas** and **the Middle East**.
+
+Because my null hypothesis stated that all regions were declining in freedom at the same rate, **I can reject the null** because I have significant evidence that at least some regions are declining at different rates. However, not all the regions differ with statistical significance, suggesting that some regions may be following similar trends. 
+
+While I can reject the null hypothesis and determine an association, **I cannot determine a causal relationship** between world region and freedom decline. The data I used was observational and treatment was not randomly assigned. There could be many possible confounders. For example, different regions can have different systems of government and some of these systems may prioritize freedom more than others. As such, I cannot conclude that region or location alone causes magnitude of freedom decline. 
+
+## Conclusion
+
+To conclude, I found statistically significant evidence that at least some of the six world regions that Freedom House defines differ in their rates of freedom decline. According to my analysis, Eurasia is declining the fastest while Asia is declining the slowest. While I cannot confirm a causal relationship, **I believe these results are practically significant**. Knowing where rights and services for citizens are declining the fastest allows policymakers and other people in power to know where their attention is most needed. The results I've found are important to continue working toward freedom and equity in regions/countries that do not yet have it. 
+
+The **limits of my analysis** are that it was an observational study rather than an experiment and that I did not use one p-value to analyze the significance of all regression models. My results are varied because I used a different p-value for each region/year interaction coefficient, meaning that some coefficients were statistically significant and others weren't. 
+
+The issue of the data not coming from an experiment is hard to solve. In this case, I cannot randomly assign regions as geography is already set. However if I had more time, knowledge and resources, I would find a way to use one p-value that summarizes my multiple regression as a whole. If I had one p-value, it would be easier to clearly reject or retain the null for all regions, making my conclusion less ambiguous. 
+
+Regardless of these limitations, I learned a lot from this dataset and as I've said above, there is potential to use these findings for more effective policy making!
+
+## My Code
+
+```{r print-code, ref.label=knitr::all_labels(), echo = TRUE, eval=FALSE}
+
+```
